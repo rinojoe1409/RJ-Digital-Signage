@@ -1,0 +1,24 @@
+name: rj-digital-signage
+services:
+  signage:
+    image: rj-digital-signage-cms:0.2.4
+    build: .
+    restart: unless-stopped
+    ports:
+      - "80:3210"
+      - "3210:3210"
+    volumes:
+      - signage-data:/app/data
+    environment:
+      TZ: Asia/Jakarta
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+volumes:
+  signage-data:

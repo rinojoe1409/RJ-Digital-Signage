@@ -1,0 +1,17 @@
+**
+!package.json
+!server/
+!server/**
+!shared/
+!shared/**
+!public/
+!public/**
+!branding/
+!branding/**
+**/data/**
+**/secrets/**
+**/node_modules/**
+**/*.log
+**/*.sqlite*
+**/*.db
+**/.env*

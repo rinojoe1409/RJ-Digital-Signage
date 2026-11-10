@@ -1,0 +1,16 @@
+{
+  "name": "rj-digital-signage-system",
+  "version": "0.2.4",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0 <25" },
+  "scripts": {
+    "start": "node server/server.mjs",
+    "player": "node player/agent.mjs",
+    "test": "node --test tests/*.test.mjs shared/*.test.mjs player/*.test.mjs",
+    "lint": "eslint server public shared player scripts tests",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": { "eslint": "9.39.4", "globals": "16.4.0", "playwright": "1.62.1" }
+}
