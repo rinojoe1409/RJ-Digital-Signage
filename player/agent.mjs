@@ -45,6 +45,88 @@ function sanitizePlayback(value) {
   return { renders: diagnosticCount(value?.renders), youtube };
 }
 const playbackSignature = value => JSON.stringify(value.youtube.map(({ widgetId, state, reason, code, attempt }) => ({ widgetId, state, reason, code, attempt })));
+const isRendererReport = report => report && typeof report === 'object' && !Array.isArray(report)
+  && ['playing', 'waiting-video', 'standby'].includes(report.status)
+  && report.screen && Number.isFinite(report.screen.width) && report.screen.width > 0 && report.screen.width <= 65536
+  && Number.isFinite(report.screen.height) && report.screen.height > 0 && report.screen.height <= 65536
+  && (report.currentPublicationId === null || (typeof report.currentPublicationId === 'string' && safeId(report.currentPublicationId)));
+
+/** A bootstrap process can exit after handing its URL to an existing Chromium browser. */
+export function createKioskSupervisor(options) {
+  const enabled = options.enabled !== false;
+  const now = options.now || (() => performance.now());
+  const timestamp = options.timestamp || (() => new Date().toISOString());
+  const setTimer = options.setTimer || setTimeout, clearTimer = options.clearTimer || clearTimeout;
+  const duration = (value, fallback) => Number.isFinite(value) ? Math.max(10, Math.min(300000, value)) : fallback;
+  const startupGrace = duration(options.startupGraceMs, 30000), rendererGrace = duration(options.rendererGraceMs, 90000);
+  const retryDelay = duration(options.retryMs, 5000), checkDelay = duration(options.checkMs, 1000);
+  const owned = new Set();
+  let timer = null, started = false, stopped = false, launching = false, launchPromise = null;
+  let startupUntil = 0, nextLaunch = 0, lastReport = null, mode = enabled ? 'idle' : 'disabled';
+  const diagnostics = { launches: 0, exits: 0, suppressedRestarts: 0, lastLaunchAt: null, lastExitAt: null, lastExitCode: null, lastRendererReportAt: null };
+  const increment = key => { diagnostics[key] = Math.min(1000000000, diagnostics[key] + 1); };
+  const schedule = () => {
+    if (!enabled || stopped || !started || timer !== null) return;
+    timer = setTimer(() => { timer = null; void check(); }, checkDelay);
+  };
+  async function dispose(child) {
+    if (!child) return;
+    try { await options.terminate?.(child); } catch { /* Only known owned processes are eligible for cleanup. */ }
+  }
+  async function check() {
+    if (!enabled || stopped || !started) return;
+    const at = now();
+    if (launching) { schedule(); return; }
+    // A missing renderer report is not proof that an owned browser has closed:
+    // Windows may throttle timers while its window is hidden or occluded.
+    if ([...owned].some(child => child.exitCode === null && child.signalCode === null)) {
+      mode = 'running'; schedule(); return;
+    }
+    if (lastReport !== null && at - lastReport < rendererGrace) {
+      mode = 'delegated';
+      if (at >= nextLaunch) { increment('suppressedRestarts'); nextLaunch = at + retryDelay; }
+      schedule(); return;
+    }
+    if (at < startupUntil || at < nextLaunch) { mode = 'waiting'; schedule(); return; }
+    launching = true; mode = 'starting'; increment('launches'); diagnostics.lastLaunchAt = timestamp();
+    nextLaunch = at + retryDelay;
+    launchPromise = (async () => {
+      try {
+        const child = await options.launch();
+        if (stopped) { await dispose(child); return; }
+        if (!child || typeof child.once !== 'function') throw new Error('Browser belum tersedia.');
+        owned.add(child); startupUntil = now() + startupGrace;
+        child.once('error', () => { if (!stopped && owned.has(child)) { mode = 'error'; options.onError?.(); } });
+        child.once('close', (code) => {
+          owned.delete(child);
+          if (stopped) return;
+          increment('exits'); diagnostics.lastExitAt = timestamp();
+          diagnostics.lastExitCode = Number.isSafeInteger(code) && code >= -2147483648 && code <= 4294967295 ? code : null;
+          nextLaunch = Math.max(nextLaunch, now() + retryDelay); schedule();
+        });
+      } catch {
+        if (!stopped) { mode = 'error'; nextLaunch = now() + retryDelay; options.onError?.(); }
+      } finally { launching = false; schedule(); }
+    })();
+    await launchPromise;
+  }
+  return {
+    start() { if (!started && !stopped && enabled) { started = true; void check(); } },
+    reportRenderer(report) {
+      if (!enabled || stopped || !isRendererReport(report)) return false;
+      // Receipt time is authoritative; never use a timestamp supplied by the page.
+      lastReport = now(); diagnostics.lastRendererReportAt = timestamp(); options.onRecovery?.(); schedule();
+      return true;
+    },
+    snapshot() { return { state: stopped ? 'stopped' : mode, ...diagnostics }; },
+    async stop() {
+      if (stopped) { await launchPromise; return; }
+      stopped = true; if (timer !== null) { clearTimer(timer); timer = null; }
+      await launchPromise;
+      await Promise.all([...owned].map(dispose)); owned.clear();
+    },
+  };
+}
 
 async function readJson(filename, fallback = null) {
   try { return JSON.parse(await fs.readFile(filename, 'utf8')); }
@@ -213,7 +295,7 @@ async function createPlayerService(options = {}) {
   let state = { status: activeManifest ? 'cached' : 'standby', progress: activeManifest ? 100 : 0, currentPublicationId: null,
     downloadedGeneration: activeManifest?.generation || null, lastError: cacheNeedsRepair ? 'Cache tidak lengkap atau rusak; menunggu unduhan ulang.' : '', connected: false, lastSync: null, screen: null,
     playback: { renders: 0, youtube: [] } };
-  let syncError = state.lastError, playbackError = '';
+  let syncError = state.lastError, playbackError = '', browserError = '';
   const diagnosticPath = path.join(dataDir, 'logs', 'playback-diagnostic.json');
   const previousDiagnostics = await readJson(diagnosticPath);
   const diagnosticHistory = Array.isArray(previousDiagnostics?.history) ? previousDiagnostics.history.slice(-40).filter(item => item && typeof item === 'object').map(item => ({ at: diagnosticTime(item.at), ...sanitizePlayback(item) })) : [];
@@ -237,7 +319,7 @@ async function createPlayerService(options = {}) {
   }
   let closed = false, syncPromise = null, queued = false, screenshotBusy = false;
   const timers = new Set(), controllers = new Set();
-  let edge = null;
+  let browserSupervisor = null;
   const authorization = { Authorization: `Bearer ${config.token}` };
 
   async function api(route, options = {}) {
@@ -326,7 +408,7 @@ async function createPlayerService(options = {}) {
       await fs.rm(path.join(dataDir, 'pairing-reset.json'), { force: true });
       activeManifest = manifest; state.progress = 100; state.downloadedGeneration = manifest.generation;
       if (state.status === 'downloading') state.status = 'ready';
-      syncError = ''; state.lastError = playbackError; state.lastSync = manifest.syncedAt; await heartbeat();
+      syncError = ''; state.lastError = playbackError || browserError; state.lastSync = manifest.syncedAt; await heartbeat();
     } catch (error) {
       state.connected = false; syncError = error.message || 'Sinkronisasi gagal.'; state.lastError = syncError;
       state.status = activeManifest ? 'cached' : 'error'; await heartbeat();
@@ -398,7 +480,7 @@ async function createPlayerService(options = {}) {
     const url = new URL(request.url, `http://${host}`);
     try {
       if (request.method === 'GET' && url.pathname === '/api/local/manifest') { json(response, 200, activeManifest || { schema: 1, generation: 'empty', settings: {}, programs: [], schedules: [], assets: [] }); return; }
-      if (request.method === 'GET' && url.pathname === '/api/local/status') { json(response, 200, { application: 'RJDigitalSignagePlayer', version: '0.3.2', ...state, playerId: config.id, playerName: config.name || '', contentDirectory: cacheDir }); return; }
+      if (request.method === 'GET' && url.pathname === '/api/local/status') { json(response, 200, { application: 'RJDigitalSignagePlayer', version: '0.3.3', ...state, playerId: config.id, playerName: config.name || '', contentDirectory: cacheDir, browser: browserSupervisor?.snapshot() }); return; }
       if (request.method === 'POST' && url.pathname === '/api/local/status') {
         if (request.headers['x-rj-request'] !== '1') { json(response, 403, { error: 'Permintaan ditolak.' }); return; }
         let body = '';
@@ -407,8 +489,9 @@ async function createPlayerService(options = {}) {
         const allowed = ['playing', 'waiting-video', 'standby'];
         if (allowed.includes(report.status) && state.status !== 'downloading') state.status = report.status;
         if (typeof report.currentPublicationId === 'string' || report.currentPublicationId === null) state.currentPublicationId = report.currentPublicationId;
-        if (typeof report.lastError === 'string') { playbackError = report.lastError.slice(0, 500); state.lastError = syncError || playbackError; }
+        if (typeof report.lastError === 'string') { playbackError = report.lastError.slice(0, 500); state.lastError = syncError || playbackError || browserError; }
         if (report.screen && Number.isFinite(report.screen.width) && Number.isFinite(report.screen.height)) state.screen = { width: report.screen.width, height: report.screen.height };
+        browserSupervisor?.reportRenderer(report);
         if (report.playback && typeof report.playback === 'object' && !Array.isArray(report.playback)) await recordPlayback(report.playback);
         json(response, 200, { ok: true }); return;
       }
@@ -441,40 +524,40 @@ async function createPlayerService(options = {}) {
   const address = `http://127.0.0.1:${localServer.address().port}`;
 
   async function launchEdge() {
-    if (closed || options.headless || process.platform !== 'win32') return;
+    if (closed) return null;
     const choices = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)'], process.env.LOCALAPPDATA].filter(Boolean).map(folder => path.join(folder, 'Microsoft', 'Edge', 'Application', 'msedge.exe'));
     const executable = (await Promise.all(choices.map(async candidate => await fs.access(candidate).then(() => candidate).catch(() => null)))).find(Boolean);
-    if (!executable) { state.lastError = 'Microsoft Edge belum tersedia. Pasang Edge untuk mode kios.'; return; }
-    const launched = spawn(executable, ['--kiosk', `${address}/player.html`, '--edge-kiosk-type=fullscreen', '--no-first-run', '--autoplay-policy=no-user-gesture-required', `--user-data-dir=${path.join(dataDir, 'kiosk-profile')}`], { windowsHide: true, stdio: 'ignore' });
-    edge = launched;
-    launched.once('error', () => { state.lastError = 'Player layar penuh belum dapat dibuka.'; });
-    launched.once('close', () => {
-      if (edge === launched) edge = null;
-      if (!closed) { const timer = setTimeout(() => { timers.delete(timer); void launchEdge(); }, 5000); timers.add(timer); }
+    if (!executable) throw new Error('Microsoft Edge belum tersedia.');
+    if (closed) return null;
+    return spawn(executable, ['--kiosk', `${address}/player.html`, '--edge-kiosk-type=fullscreen', '--no-first-run', '--autoplay-policy=no-user-gesture-required', `--user-data-dir=${path.join(dataDir, 'kiosk-profile')}`], { windowsHide: true, stdio: 'ignore' });
+  }
+  async function terminateEdge(ownedEdge) {
+    if (!ownedEdge || ownedEdge.exitCode !== null || !ownedEdge.pid) return;
+    if (process.platform !== 'win32') { ownedEdge.kill(); return; }
+    await new Promise(resolve => {
+      const stop = spawn('taskkill.exe', ['/PID', String(ownedEdge.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
+      const timer = setTimeout(() => { stop.kill(); resolve(); }, 3000);
+      const done = () => { clearTimeout(timer); resolve(); };
+      stop.once('error', done); stop.once('exit', done);
     });
   }
+  browserSupervisor = createKioskSupervisor({
+    enabled: !options.headless && process.platform === 'win32', launch: launchEdge, terminate: terminateEdge,
+    onError() { browserError = 'Player layar penuh belum dapat dibuka.'; state.lastError = syncError || playbackError || browserError; },
+    onRecovery() { browserError = ''; state.lastError = syncError || playbackError; },
+  });
   if (options.connect !== false) {
     void sync(); void events();
     timers.add(setInterval(() => void sync(), 60000)); timers.add(setInterval(() => void heartbeat(), 10000));
   }
-  void launchEdge();
+  browserSupervisor.start();
   return {
     server: localServer, address, dataDir, mediaDir: cacheDir, sync,
-    get manifest() { return activeManifest; }, get status() { return { ...state }; },
+    get manifest() { return activeManifest; }, get status() { return { ...state, browser: browserSupervisor.snapshot() }; },
     async close() {
       closed = true; for (const timer of timers) { clearTimeout(timer); clearInterval(timer); }
       for (const controller of controllers) controller.abort();
-      const ownedEdge = edge; edge = null;
-      if (ownedEdge && ownedEdge.exitCode === null && ownedEdge.pid) {
-        if (process.platform === 'win32') {
-          await new Promise(resolve => {
-            const stop = spawn('taskkill.exe', ['/PID', String(ownedEdge.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
-            const timer = setTimeout(() => { stop.kill(); resolve(); }, 3000);
-            const done = () => { clearTimeout(timer); resolve(); };
-            stop.once('error', done); stop.once('exit', done);
-          });
-        } else ownedEdge.kill();
-      }
+      await browserSupervisor.stop();
       localServer.closeAllConnections?.(); await new Promise(resolve => localServer.close(resolve));
       if (syncPromise) await syncPromise;
       await diagnosticWrite;

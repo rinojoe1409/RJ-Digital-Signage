@@ -5,6 +5,7 @@
 - [003-manual-instalasi.md](003-manual-instalasi.md): manual instalasi server baru.
 - [004-persiapan-source-publik.md](004-persiapan-source-publik.md): adaptasi source dan branding publik.
 - [005-verifikasi-rilis-publik.md](005-verifikasi-rilis-publik.md): hasil uji source dan installer publik.
+- [006-player-033-peluncur-edge.md](006-player-033-peluncur-edge.md): kandidat perbaikan peluncuran Edge berulang pada Player 0.3.3.
 
 - [004-persiapan-source-publik.md](004-persiapan-source-publik.md): persiapan aplikasi dan manual publik.
 

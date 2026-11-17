@@ -26,3 +26,7 @@ Pengguna mengizinkan aplikasi dan manual dapat diunduh publik. Export baru hanya
 ## 11 November 2026 — Verifikasi paket publik
 
 Source adaptasi lulus 70 pemeriksaan utama dan 2 tes EXE terkemas, 5 tes backup Python, syntax JS/PowerShell, serta lint tanpa error. Installer branding Rino Joe dibangun ulang dan 20 berkas hasil ekstraksi cocok manifest; tidak mengubah startup/registrasi komputer pengembangan. Logo baru beserta gate hash diperbarui. Audit public source tidak menemukan kredensial nyata, alamat kantor, atau riwayat Git lama. Rincian dan checksum: states/005-verifikasi-rilis-publik.md. Tidak ada deployment server/perangkat fisik pada tahap publikasi.
+
+## 17 November 2026 — Kandidat Player 0.3.3
+
+Laporan video dan riwayat lokal menunjukkan YouTube kembali menghubungkan sekitar setiap lima detik. Supervisor diperbaiki agar keluarnya proses peluncur Edge tidak selalu membuka tayangan ulang jika halaman masih aktif. Ditambahkan diagnostik browser lokal, tenggang startup/laporan, perlindungan proses aktif dan tujuh tes regresi. 77 tes utama dan dua tes EXE terkemas lulus; installer 0.3.3 sudah dibangun dan diverifikasi. CMS tetap 0.2.4, pairing/cache dan aturan durasi tetap. Hasil perangkat fisik belum dikonfirmasi; lihat states/006-player-033-peluncur-edge.md.

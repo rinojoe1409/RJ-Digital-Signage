@@ -2,7 +2,7 @@
 
 Source aplikasi CMS signage ini dapat diunduh publik dan dijalankan pada server Linux menggunakan Docker. Source Windows Player dan script build installer `.exe` juga disertakan; installer `.exe` publik disediakan terpisah melalui [GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases). Satu output player dapat digandakan melalui splitter ke banyak layar dengan tayangan identik.
 
-Source berisi **CMS 0.2.4** dan **Windows Player 0.3.2**. Versi keduanya berbeda karena dirilis terpisah. Copyright ©2026 Rino Joe
+Source berisi **CMS 0.2.4** dan **Windows Player 0.3.3**. Versi keduanya berbeda karena dirilis terpisah. Copyright ©2026 Rino Joe
 
 Repository: https://github.com/rinojoe1409/RJ-Digital-Signage
 
@@ -51,13 +51,13 @@ Buka http://localhost:3210/. Pada Windows tersedia Start-Local.cmd. Data lokal d
 
 ## Windows Player
 
-Windows 10/11 x64, Microsoft Edge dan .NET Framework 4.8. Installer membundel Node.js 24; binary distribusi berada di Releases, sedangkan alat build tidak disimpan dalam Git. Build publik memakai copyright Rino Joe dan alamat server generik; versi player tetap 0.3.2.
+Windows 10/11 x64, Microsoft Edge dan .NET Framework 4.8. Installer membundel Node.js 24; binary distribusi berada di Releases, sedangkan alat build tidak disimpan dalam Git. Build publik memakai copyright Rino Joe dan alamat server generik; versi player tetap 0.3.3.
 
 - [Unduh installer Windows dari GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases).
 - [Panduan player](player/README.md).
 - [Alat build](packaging/windows/BUILD-TOOLS.md), lalu jalankan packaging/windows/Build-Player.ps1 pada Windows.
 - [Panduan pemasangan](packaging/windows/PLAYER-INSTALLATION.md).
-- Hasil: dist/windows-player/RJ-Digital-Signage-Player-Setup-0.3.2-x64.exe beserta checksum.
+- Hasil: dist/windows-player/RJ-Digital-Signage-Player-Setup-0.3.3-x64.exe beserta checksum.
 
 Gunakan alamat CMS yang dapat dijangkau PC player dan kode pemasangan dari menu Player. Konten installer normal disimpan di %USERPROFILE%\Content RJ Digital. Pairing/token tetap terpisah di %LOCALAPPDATA%\RJ Digital Signage Player\data.
 

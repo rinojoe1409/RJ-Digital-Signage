@@ -22,14 +22,14 @@ AllowSkipFiles off
 !ifndef RJ_UNINSTALL_INCLUDE
   !error "RJ_UNINSTALL_INCLUDE must name the generated file list"
 !endif
-!define RJ_VERSION "0.3.2"
+!define RJ_VERSION "0.3.3"
 !define RJ_MARKER "RJ-PLAYER-1-4B79AECE-5493-44E3-A565-58D9D706C824"
 !define RJ_UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RJDigitalSignagePlayer"
 Name "RJ Digital Signage Player"
 OutFile "${RJ_OUTPUT}"
 InstallDir "$LOCALAPPDATA\Programs\RJ Digital Signage Player"
 BrandingText "Copyright ©2026 Rino Joe"
-VIProductVersion "0.3.2.0"
+VIProductVersion "0.3.3.0"
 VIAddVersionKey /LANG=1033 "ProductName" "RJ Digital Signage Player"
 VIAddVersionKey /LANG=1033 "FileDescription" "Installer RJ Digital Signage Player untuk Windows x64"
 VIAddVersionKey /LANG=1033 "FileVersion" "${RJ_VERSION}"

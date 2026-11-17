@@ -1,13 +1,13 @@
 # RJ Digital Signage Player — Windows
 
-Versi player 0.3.2, untuk Windows 10/11 64-bit. Microsoft Edge dan .NET Framework 4.8 atau lebih baru perlu tersedia. Runtime Node.js 24 sudah termasuk dalam installer.
+Versi player 0.3.3, untuk Windows 10/11 64-bit. Microsoft Edge dan .NET Framework 4.8 atau lebih baru perlu tersedia. Runtime Node.js 24 sudah termasuk dalam installer.
 
-Unduh installer `.exe` publik dari [GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases). Source dan script build juga tersedia pada repository. Build publik memakai copyright Rino Joe dan alamat server generik, dengan versi player tetap 0.3.2.
+Unduh installer `.exe` publik dari [GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases). Source dan script build juga tersedia pada repository. Build publik memakai copyright Rino Joe dan alamat server generik, dengan versi player 0.3.3.
 
 ## Pemasangan pada PC player
 
 1. Masuk memakai akun Windows yang akan digunakan sehari-hari untuk signage.
-2. Jalankan `RJ-Digital-Signage-Player-Setup-0.3.2-x64.exe`.
+2. Jalankan `RJ-Digital-Signage-Player-Setup-0.3.3-x64.exe`.
 3. Pilih apakah player berjalan otomatis setelah akun Windows login, lalu selesaikan pemasangan.
 4. Pada CMS buka menu **Player**, lalu buat kode pemasangan enam digit.
 5. Buka **RJ Player**, isi alamat CMS, nama player, dan kode tersebut. Klik **Hubungkan & mulai**.
@@ -42,7 +42,9 @@ Konten gambar/video secara default berada di **`%USERPROFILE%\Content RJ Digital
 
 Data pairing, token, manifest, indeks media dan log tetap berada di `%LOCALAPPDATA%\RJ Digital Signage Player\data`, terpisah dari konten dan berkas program. Token tidak ditampilkan dan akses penyimpanannya dibatasi untuk akun Windows tersebut dan SYSTEM. Aplikasi tidak menyalin data pairing/token ke folder konten.
 
-Untuk memperbarui ke 0.3.2, jalankan installer pada akun Windows yang sama. Pairing tetap tersimpan sehingga tidak perlu memasangkan ulang. Pada pemakaian pertama, cache lama yang valid disalin ke folder konten baru; cache lama tetap dipertahankan. Perlu ruang disk untuk salinan konten. Jika nama file bertabrakan dengan berkas berbeda pada folder tujuan, player menampilkan pesan tanpa menimpa berkas itu.
+Untuk memperbarui ke 0.3.3, jalankan installer pada akun Windows yang sama. Pairing tetap tersimpan sehingga tidak perlu memasangkan ulang. Pada pemakaian pertama, cache lama yang valid disalin ke folder konten baru; cache lama tetap dipertahankan. Perlu ruang disk untuk salinan konten. Jika nama file bertabrakan dengan berkas berbeda pada folder tujuan, player menampilkan pesan tanpa menimpa berkas itu.
+
+Sebelum menjalankan installer pembaruan, keluar dari RJ Player melalui ikon tray agar proses dan file aplikasi tidak sedang digunakan. Setelah pemasangan selesai, buka RJ Player kembali. Pembaruan player tidak memerlukan pemasangan ulang CMS server.
 
 Penghapusan aplikasi tersedia di **Settings → Apps** Windows atau menu Start. Data pairing dan konten dipertahankan; penghapusan aplikasi tidak menghapus player yang terdaftar di CMS.
 

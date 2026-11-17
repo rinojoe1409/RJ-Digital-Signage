@@ -1,7 +1,7 @@
 param([string]$Installer)
 $ErrorActionPreference = 'Stop'
 $rjProject = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
-if (-not $Installer) { $Installer = Join-Path $rjProject 'dist\windows-player\RJ-Digital-Signage-Player-Setup-0.3.2-x64.exe' }
+if (-not $Installer) { $Installer = Join-Path $rjProject 'dist\windows-player\RJ-Digital-Signage-Player-Setup-0.3.3-x64.exe' }
 $rjExtract = Join-Path $rjProject ('tmp\installer-extraction-' + [guid]::NewGuid().ToString('N'))
 if (-not ([IO.Path]::GetFullPath($rjExtract).StartsWith($rjProject + '\', [StringComparison]::OrdinalIgnoreCase)) -or (Test-Path -LiteralPath $rjExtract)) { throw 'Folder QA tidak valid.' }
 function Get-RjStartupValue {

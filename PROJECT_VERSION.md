@@ -2,13 +2,15 @@
 
 Export: 11 November 2026, Asia/Jakarta.
 
-Dokumentasi instalasi: manual versi 1.1 untuk source publik, 11 November 2026, tersedia di `deploy/Manual-Instalasi-RJ-Digital-Signage-Server-Linux.md`. Versi aplikasi tetap seperti tabel berikut.
+Dokumentasi instalasi: manual versi 1.2, 17 November 2026, tersedia di `deploy/Manual-Instalasi-RJ-Digital-Signage-Server-Linux.md`. Versi aplikasi saat ini tercantum pada tabel berikut; catatan versi terdahulu dipertahankan di bawahnya.
 
 | Komponen | Versi | Sumber |
 |---|---|---|
 | CMS/dashboard | 0.2.4 | rj-signage-0.2.4-20261110074838 |
-| Agen/launcher Windows | 0.3.2 | Source player yang telah dibangun/diuji, termasuk Content RJ Digital |
+| Agen/launcher Windows | 0.3.3 (kandidat uji lapangan) | Perbaikan pengawasan Edge; 77 tes utama dan 2 tes EXE lulus |
 | Renderer bersama | Sesuai player 0.3.2 | Diagnostik video dan perlindungan hasil play() yang kedaluwarsa |
+
+Player 0.3.3 diuji lokal pada 17 November 2026. Hasil pada PC pelapor masih memerlukan konfirmasi setelah pembaruan. Detail kondisi pemulihan, batas dan checksum tersedia di states/006-player-033-peluncur-edge.md.
 
 Seluruh 106 hash baseline diperiksa sebelum export. Server, admin, package dan compose mempertahankan 0.2.4. Overlay player membawa folder konten, migrasi cache yang mempertahankan sumber dan pesan gangguan video lebih jelas. Renderer dipakai preview CMS/player; gabungan ini bukan salinan byte identik image CMS terpasang.
 

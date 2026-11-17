@@ -4,9 +4,9 @@
 
 | Informasi | Keterangan |
 |---|---|
-| Versi manual | 1.1 — 11 November 2026 |
+| Versi manual | 1.2 — 17 November 2026 |
 | Sistem server contoh | Ubuntu Server 24.04 LTS |
-| Versi source acuan | CMS 0.2.4 / Windows Player 0.3.2 |
+| Versi source acuan | CMS 0.2.4 / Windows Player 0.3.3 |
 | Penggunaan | Jaringan lokal / on-premises |
 | Copyright | ©2026 Rino Joe |
 
@@ -112,7 +112,7 @@ rj-digital-signage/
 
 Sertakan seluruh isi source, termasuk file bertitik seperti `.dockerignore`. Hindari folder bertingkat ganda `rj-digital-signage/rj-digital-signage/`.
 
-Repository aplikasi ini publik dan source dapat diunduh tanpa login GitHub. Tidak perlu menyimpan token GitHub pada server dengan metode ini. Manual mengacu pada CMS 0.2.4 / Player 0.3.2; periksa package.json dan dokumentasi rilis jika versi source berubah.
+Repository aplikasi ini publik dan source dapat diunduh tanpa login GitHub. Tidak perlu menyimpan token GitHub pada server dengan metode ini. Manual mengacu pada CMS 0.2.4 / Player 0.3.3; periksa package.json dan dokumentasi rilis jika versi source berubah.
 
 ## 4. Upload aplikasi ke server
 
@@ -217,13 +217,13 @@ Simpan password dengan aman. Jangan memasukkan password/kode/token ke source, re
 
 ## 8. Hubungkan player Windows
 
-Siapkan PC Windows 10/11 x64, Microsoft Edge, dan .NET Framework 4.8. Untuk source acuan ini gunakan installer **RJ Digital Signage Player 0.3.2**:
+Siapkan PC Windows 10/11 x64, Microsoft Edge, dan .NET Framework 4.8. Untuk source acuan ini gunakan installer **RJ Digital Signage Player 0.3.3**:
 
 ```text
-RJ-Digital-Signage-Player-Setup-0.3.2-x64.exe
+RJ-Digital-Signage-Player-Setup-0.3.3-x64.exe
 ```
 
-Unduh file installer `.exe` dari [GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases), lalu gunakan pada PC player. Binary distribusi terpisah dari source Git. Script pembuat installer tersedia pada `packaging/windows/` jika ingin membangun sendiri dengan lingkungan Windows. Build publik memakai copyright Rino Joe dan alamat server generik; versi aplikasi tetap CMS 0.2.4 / Player 0.3.2.
+Unduh file installer `.exe` dari [GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases), lalu gunakan pada PC player. Binary distribusi terpisah dari source Git. Script pembuat installer tersedia pada `packaging/windows/` jika ingin membangun sendiri dengan lingkungan Windows. Build publik memakai copyright Rino Joe dan alamat server generik; versi aplikasi tetap CMS 0.2.4 / Player 0.3.3.
 
 Langkah pemasangan dan pairing:
 

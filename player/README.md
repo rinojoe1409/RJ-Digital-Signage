@@ -1,8 +1,8 @@
-# RJ Player Windows 0.3.2
+# RJ Player Windows 0.3.3
 
 Windows 10/11 x64, Edge dan .NET Framework 4.8. Installer membundel Node.js 24. [Panduan pemasangan](../packaging/windows/PLAYER-INSTALLATION.md) dan [alat build](../packaging/windows/BUILD-TOOLS.md).
 
-Jalankan packaging/windows/Build-Player.ps1 pada Windows. Hasil dist/windows-player/RJ-Digital-Signage-Player-Setup-0.3.2-x64.exe dan checksum. Binary tidak disimpan dalam Git; [unduh installer publik dari GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases). Source dan script build tetap tersedia untuk membuat installer sendiri. Build publik memakai copyright Rino Joe dan alamat server generik; versi tetap 0.3.2.
+Jalankan packaging/windows/Build-Player.ps1 pada Windows. Hasil dist/windows-player/RJ-Digital-Signage-Player-Setup-0.3.3-x64.exe dan checksum. Binary tidak disimpan dalam Git; [unduh installer publik dari GitHub Releases](https://github.com/rinojoe1409/RJ-Digital-Signage/releases). Source dan script build tetap tersedia untuk membuat installer sendiri. Build publik memakai copyright Rino Joe dan alamat server generik; versi tetap 0.3.3.
 
 Installer memakai akun Windows sehari-hari player. Buat kode pemasangan di CMS, isi alamat CMS yang terjangkau dan kode pada form, lalu Hubungkan & mulai. Autostart opsional setelah login; tanpa auto-login. Update memakai akun yang sama agar pairing/cache dipertahankan.
 

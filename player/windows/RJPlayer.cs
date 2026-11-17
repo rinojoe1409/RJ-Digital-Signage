@@ -21,8 +21,8 @@ using System.Windows.Forms;
 [assembly: AssemblyCompany("Rino Joe")]
 [assembly: AssemblyProduct("RJ Digital Signage Player")]
 [assembly: AssemblyCopyright("Copyright ©2026 Rino Joe")]
-[assembly: AssemblyVersion("0.3.2.0")]
-[assembly: AssemblyFileVersion("0.3.2.0")]
+[assembly: AssemblyVersion("0.3.3.0")]
+[assembly: AssemblyFileVersion("0.3.3.0")]
 
 namespace RJSignagePlayer
 {
@@ -156,7 +156,7 @@ namespace RJSignagePlayer
         {
             Dictionary<string, object> result = new Dictionary<string, object>();
             result["product"] = "RJ Digital Signage Player";
-            result["version"] = "0.3.2";
+            result["version"] = "0.3.3";
             result["dataDirectory"] = options.DataDirectory;
             result["contentDirectory"] = options.MediaDirectory;
             result["windows64"] = Environment.Is64BitOperatingSystem;

@@ -22,7 +22,7 @@ if ($rjNodeVersion -notmatch '^v24\.') { throw 'Paket player membutuhkan runtime
 $rjApprovedLogo = Join-Path $rjProject 'branding\RJ-Digital-Signage-System-logo-approved-v1.png'
 if ((Get-FileHash -LiteralPath $rjApprovedLogo -Algorithm SHA256).Hash -ine '5c167c93f838a8d909011a3ee69cc82091d2870b6afcba6d15a09a4a2d023945') { throw 'Logo resmi berubah; build dibatalkan.' }
 $rjBuildId = Get-Date -Format 'yyyyMMdd-HHmmss'
-$rjStage = Join-Path $rjProject ('build-tools\staging\player-0.3.2-' + $rjBuildId)
+$rjStage = Join-Path $rjProject ('build-tools\staging\player-0.3.3-' + $rjBuildId)
 if (Test-Path -LiteralPath $rjStage) { throw 'Direktori staging sudah ada.' }
 New-Item -ItemType Directory -Path $rjStage, $rjOutput -Force | Out-Null
 & (Join-Path $rjProject 'player\windows\build-desktop.ps1') -OutputDirectory $rjStage
@@ -47,7 +47,7 @@ $rjUtf8 = [Text.UTF8Encoding]::new($false)
 $rjManifestFiles = @(Get-ChildItem -LiteralPath $rjStage -Recurse -File | ForEach-Object {
     [ordered]@{ path = $_.FullName.Substring($rjStage.Length + 1).Replace('\', '/'); sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); size = $_.Length }
 })
-$rjManifest = [ordered]@{ product = 'RJ Digital Signage Player'; version = '0.3.2'; architecture = 'x64'; node = $rjNodeVersion; builtAt = [DateTime]::UtcNow.ToString('o'); files = $rjManifestFiles }
+$rjManifest = [ordered]@{ product = 'RJ Digital Signage Player'; version = '0.3.3'; architecture = 'x64'; node = $rjNodeVersion; builtAt = [DateTime]::UtcNow.ToString('o'); files = $rjManifestFiles }
 [IO.File]::WriteAllText((Join-Path $rjStage 'player-package.json'), ($rjManifest | ConvertTo-Json -Depth 5), $rjUtf8)
 $rjAllFiles = @(Get-ChildItem -LiteralPath $rjStage -Recurse -File)
 $rjUninstallLines = @('# Generated from this payload. Delete only installed files; preserve unrelated files and user data.')
@@ -61,7 +61,7 @@ foreach ($rjDirectory in $rjDirectories) { $rjUninstallLines += ('RMDir "$INSTDI
 # Each build gets its own generated include beside its uniquely named payload.
 $rjUninstallInclude = Join-Path (Split-Path $rjStage -Parent) ('uninstall-' + $rjBuildId + '.nsh')
 [IO.File]::WriteAllLines($rjUninstallInclude, $rjUninstallLines, $rjUtf8)
-$rjInstaller = Join-Path $rjOutput 'RJ-Digital-Signage-Player-Setup-0.3.2-x64.exe'
+$rjInstaller = Join-Path $rjOutput 'RJ-Digital-Signage-Player-Setup-0.3.3-x64.exe'
 $rjNsisDirectory = Split-Path (Split-Path $rjCompiler -Parent) -Parent
 $rjPreviousNsisDirectory = $env:NSISDIR
 try {
@@ -72,7 +72,7 @@ try {
 $rjInstallerHash = (Get-FileHash -LiteralPath $rjInstaller -Algorithm SHA256).Hash.ToLowerInvariant()
 [IO.File]::WriteAllText(($rjInstaller + '.sha256'), ($rjInstallerHash + '  ' + (Split-Path $rjInstaller -Leaf) + "`n"), $rjUtf8)
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'PLAYER-INSTALLATION.md') -Destination (Join-Path $rjOutput 'CARA-INSTALL-PLAYER.md') -Force
-[IO.File]::WriteAllText((Join-Path $rjOutput 'player-build.json'), ([ordered]@{ installer = (Split-Path $rjInstaller -Leaf); sha256 = $rjInstallerHash; payload = $rjStage; version = '0.3.2'; runtime = $rjNodeVersion; installerBytes = (Get-Item -LiteralPath $rjInstaller).Length; files = $rjAllFiles.Count } | ConvertTo-Json), $rjUtf8)
+[IO.File]::WriteAllText((Join-Path $rjOutput 'player-build.json'), ([ordered]@{ installer = (Split-Path $rjInstaller -Leaf); sha256 = $rjInstallerHash; payload = $rjStage; version = '0.3.3'; runtime = $rjNodeVersion; installerBytes = (Get-Item -LiteralPath $rjInstaller).Length; files = $rjAllFiles.Count } | ConvertTo-Json), $rjUtf8)
 Write-Output ('INSTALLER=' + $rjInstaller)
 Write-Output ('SHA256=' + $rjInstallerHash)
 Write-Output ('PAYLOAD=' + $rjStage)
